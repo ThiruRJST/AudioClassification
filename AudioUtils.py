@@ -74,3 +74,64 @@ class AudioUtils(object):
         melspec = T.AmplitudeToDB(top_db=80)(melspec)
 
         return melspec
+
+
+class OneOf:
+    '''
+    Selects any one of the given transforms in the pipeline
+    '''
+    def __init__(self,transforms:list):
+        self.transforms = transforms
+    
+    def __call__(self,mel:np.ndarray):
+        n_transforms = len(self.transforms)
+        trns_index = np.random.choice(n_transforms)
+        trns = self.transforms[trns_index]
+        return trns(mel)
+
+
+
+class AudioAugmentations:
+    def __init__(self,always_apply = True,p=0.5):
+        self.always_apply = always_apply
+        self.p = p
+
+    def __call__(self,mel:torch.Tensor):
+        if self.always_apply:
+            return self.apply(mel)
+        else:
+            if np.random.rand() < self.p:
+                return self.apply(mel)
+            
+            else:
+                return mel
+        
+        
+    
+    
+
+class TimeMasking(AudioAugmentations):
+
+    def __init__(self, always_apply=True, p=0.5,time_mask_param = constants.TIME_MASK_PARAM):
+        super().__init__(always_apply=always_apply, p=p)
+        self.time_mask_param = time_mask_param
+
+
+    def apply(self,mel:torch.Tensor):
+        time_mask = T.TimeMasking(self.time_mask_param)
+        return time_mask(mel)
+
+class FrequencyMasking(AudioAugmentations):
+
+    def __init__(self, always_apply=True, p=0.5,freq_mask_param = constants.FREQ_MASK_PARAM):
+        super().__init__(always_apply=always_apply, p=p)
+        self.freq_mask_param = freq_mask_param
+    
+    def apply(self,mel:torch.Tensor):
+        freq_mask = T.FrequencyMasking(self.freq_mask_param)
+        return freq_mask(mel)
+
+    
+    
+
+    
