@@ -17,10 +17,13 @@ a = AudioUtils()
 
 class AudioDataset(torch.utils.data.Dataset):
     
-    def __init__(self):
+    def __init__(self,val_fold,mode='train'):
         super(AudioDataset, self).__init__()
-        
+        self.val_fold = val_fold
         self.df = df
+        self.mode = mode
+        self.train = self.df[self.df.folds != self.val_fold].reset_index(drop=True)
+        self.val = self.df[self.df.folds == self.val_fold].reset_index(drop=True)
 
         self.mel_transforms = OneOf([
             TimeMasking(),
@@ -30,16 +33,22 @@ class AudioDataset(torch.utils.data.Dataset):
         
                 
     def __len__(self):
-        return len(self.df)
+
+        if self.mode == 'train':
+            return len(self.train)
+        else:
+            return len(self.val)
 
     def __getitem__(self, index):
 
-        path = self.df.loc[index,'path']+'.wav'
-        label = torch.tensor([int(self.df.loc[index,'class'])])
+        df = self.train if self.mode == 'train' else self.val
+
+        path = df.loc[index,'path']+'.wav'
+        label = torch.tensor([int(df.loc[index,'class'])])
         #print(label.size())
 
-        offset = self.df.loc[index,'start_time']
-        dur = self.df.loc[index,'duration']
+        offset = df.loc[index,'start_time']
+        dur = df.loc[index,'duration']
 
         audio = a.read_audio(path,int(offset),int(dur))
         audio = a.rechannel(audio)
@@ -48,20 +57,15 @@ class AudioDataset(torch.utils.data.Dataset):
 
         audio = a.melspectro(audio)
 
-        audio_aug = self.mel_transforms(audio)
-
-
-            
-
+        if self.mode == 'train':
+            audio_aug = self.mel_transforms(audio)
 
         #print(audio.size())
-
-
 
         return audio_aug,label
 
 
-dataset = AudioDataset()
+dataset = AudioDataset(val_fold=0)
 dataset = DataLoader(dataset,batch_size=16,shuffle=True)
 
 print(next(iter(dataset)))
