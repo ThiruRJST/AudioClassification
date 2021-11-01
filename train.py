@@ -1,10 +1,10 @@
 import torch
 import wandb
-from build_model import CNN6
+from utils.build_model import CNN6
 from preprocess import AudioDataset
 import numpy as np
 import random
-from callbacks import EarlyStopping
+from utils.callbacks import EarlyStopping
 from torch.cuda.amp import GradScaler,autocast
 from torch.utils.data import DataLoader
 from tqdm import tqdm

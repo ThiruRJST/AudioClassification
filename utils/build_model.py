@@ -1,5 +1,5 @@
-from cfg_parse import parse_cfg
-from custom_ops import EmptyLayer,DeformableConv2d
+from utils.cfg_parse import parse_cfg
+from utils.custom_ops import EmptyLayer,DeformableConv2d
 import torch
 import torch.nn as nn
 from torchsummary import summary

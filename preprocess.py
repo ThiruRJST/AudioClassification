@@ -2,7 +2,7 @@ import pandas as pd
 import torch
 from torch.utils.data import Dataset,DataLoader
 import torchaudio
-from AudioUtils import AudioUtils,OneOf,TimeMasking,FrequencyMasking
+from utils.AudioUtils import AudioUtils,OneOf,TimeMasking,FrequencyMasking
 import numpy as np
 import torchaudio.transforms as T
 
