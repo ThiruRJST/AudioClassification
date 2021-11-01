@@ -4,3 +4,4 @@ Doorbell/
 Rain/
 features.tar.gz
 __pycache__/
+/wandb/
