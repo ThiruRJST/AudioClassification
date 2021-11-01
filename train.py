@@ -1,5 +1,7 @@
+from constants import EPOCHS
 import torch
 import wandb
+import torch.nn as nn
 from utils.build_model import CNN6
 from preprocess import AudioDataset
 import numpy as np
@@ -30,7 +32,8 @@ Model = CNN6().to(DEVICE)
 
 print("Model Shipped to {}".format(DEVICE))
 
-
+train_loss = nn.CrossEntropyLoss()
+val_loss = nn.CrossEntropyLoss()
 optim = torch.optim.Adam(Model.parameters())
 
 wandb.watch(Model)
@@ -57,7 +60,7 @@ def train_loop(epoch,dataloader,model,loss_fn,optim,device=DEVICE):
             #Loss Calculation
             train_loss = loss_fn(input = yhat.flatten(), target = label)
         
-        out = (yhat.flatten().sigmoid() > 0.5).float()
+        out = (yhat.flatten().softmax() > 0.5).float()
         correct = (label == out).float().sum()
 
         scaler.scale(train_loss).backward()
@@ -92,7 +95,7 @@ def val_loop(epoch,dataloader,model,loss_fn,device = DEVICE):
             yhat = model(img)
             val_loss = loss_fn(input=yhat.flatten(),target=label)
 
-            out = (yhat.flatten().sigmoid()>0.5).float()
+            out = (yhat.flatten().softmax()>0.5).float()
             correct = (label == out).float().sum()
 
             val_epoch_loss += val_loss.item()
@@ -102,7 +105,7 @@ def val_loop(epoch,dataloader,model,loss_fn,device = DEVICE):
         val_accd = val_epoch_acc / len(dataloader)
         
         wandb.log({"Val_Loss":val_lossd,"Epoch":epoch})
-        wandb.log({"Val_Acc":val_accd/len(dataloader),"Epoch":epoch})
+        wandb.log({"Val_Acc":val_accd,"Epoch":epoch})
 
         return val_lossd,val_accd
 
@@ -123,4 +126,9 @@ if __name__ == "__main__":
     trainloader = DataLoader(train_data,batch_size=8,shuffle=True)
     valloader = DataLoader(val_data,batch_size=8,shuffle=True)
 
-    print(next(iter(trainloader)))
+    #print(next(iter(trainloader)))
+
+    for e in range(EPOCHS):
+        train_el,train_ea = train_loop(epoch=e,model=Model,loss_fn=train_loss,optim=optim)
+        val_el,val_ea = val_loop(epoch=e,model=Model,loss_fn=val_loss,optim=optim)
+        
