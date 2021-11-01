@@ -1,3 +1,4 @@
+import os
 import librosa
 import numpy as np
 import torch
@@ -10,7 +11,8 @@ import torchaudio.transforms as T
 class AudioUtils(object):
 
     @staticmethod
-    def read_audio(path, offset, duration):
+    def read_audio(filename,foldername, offset, duration):
+        path = os.path.join(foldername,filename)
         audio, sr = torchaudio.load(
             path, frame_offset=offset*constants.SAMPLING_RATE, num_frames=duration*constants.SAMPLING_RATE)
         return (audio, sr)

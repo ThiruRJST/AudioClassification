@@ -43,14 +43,15 @@ class AudioDataset(torch.utils.data.Dataset):
 
         df = self.train if self.mode == 'train' else self.val
 
-        path = df.loc[index,'path']+'.wav'
+        finame = df.loc[index,'filename']
+        foname = df.loc[index,'foldername']
         label = torch.tensor([int(df.loc[index,'class'])])
         #print(label.size())
 
         offset = df.loc[index,'start_time']
         dur = df.loc[index,'duration']
 
-        audio = a.read_audio(path,int(offset),int(dur))
+        audio = a.read_audio(filename=finame,foldername=foname,offset=int(offset),duration=int(dur))
         audio = a.rechannel(audio)
         audio = a.resample(audio)
         audio = a.pad_audio(audio)
