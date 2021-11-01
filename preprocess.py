@@ -64,8 +64,3 @@ class AudioDataset(torch.utils.data.Dataset):
 
         return audio_aug,label
 
-
-dataset = AudioDataset(val_fold=0)
-dataset = DataLoader(dataset,batch_size=16,shuffle=True)
-
-print(next(iter(dataset)))

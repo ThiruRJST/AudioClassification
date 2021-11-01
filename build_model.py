@@ -1,5 +1,6 @@
 from cfg_parse import parse_cfg
-from custom_ops import DeformableConv2d, EmptyLayer
+from custom_ops import EmptyLayer,DeformableConv2d
+import torch
 import torch.nn as nn
 from torchsummary import summary
 
@@ -9,7 +10,7 @@ from torchsummary import summary
 def create_blocks(blocks):
     net_info = blocks[0]
     module_list = nn.ModuleList()
-    prev_filter = 3
+    prev_filter = 2
     output_filter = []
 
     for i, x in enumerate(blocks[1:]):
@@ -29,13 +30,9 @@ def create_blocks(blocks):
             kernel = int(x['size'])
             stride = int(x['stride'])
 
-            if padding:
-                pad = (kernel - 1) // 2
-            else:
-                pad = 0
 
             conv = nn.Conv2d(prev_filter, filters, kernel,
-                             stride, pad, bias=bias)
+                             stride, bias=bias)
             module.add_module("conv_{}".format(i), conv)
 
             if batch_norm:
@@ -88,6 +85,10 @@ def create_blocks(blocks):
             shortcut = EmptyLayer()
             module.add_module("Shortcut_{}".format(i), shortcut)
         
+        elif(x['type'] == 'pooling'):
+            pooling = nn.MaxPool2d(kernel_size=2)
+            module.add_module("Pooling2d_{}".format(i), pooling)
+        
         elif(x['type'] == 'avgpool'):
             pool = nn.AdaptiveAvgPool2d(output_size=(1,1))
             module.add_module("AvgPool{}".format(i),pool)
@@ -98,12 +99,12 @@ def create_blocks(blocks):
     return module_list
 
 
-class Deformed_Darknet53(nn.Module):
+class CNN6(nn.Module):
 
     def __init__(self):
-        super(Deformed_Darknet53, self).__init__()
+        super(CNN6, self).__init__()
 
-        self.model_list = parse_cfg("cfgs/new-darknet.cfg")
+        self.model_list = parse_cfg("cfgs/cnn14.cfg")
         self.module_list = create_blocks(self.model_list)
         #print(self.module_list)
 

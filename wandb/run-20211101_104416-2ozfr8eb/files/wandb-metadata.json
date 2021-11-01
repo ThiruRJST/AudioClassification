@@ -1,0 +1,24 @@
+{
+    "os": "Linux-5.11.0-38-generic-x86_64-with-glibc2.29",
+    "python": "3.8.10",
+    "heartbeatAt": "2021-11-01T05:14:18.086716",
+    "startedAt": "2021-11-01T05:14:16.542403",
+    "docker": null,
+    "gpu": "NVIDIA GeForce RTX 2070 SUPER",
+    "gpu_count": 1,
+    "cpu_count": 8,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "train.py",
+    "codePath": "train.py",
+    "git": {
+        "remote": "https://github.com/ThiruRJST/AudioClassification.git",
+        "commit": "ba65faf566bb2f425957981f9cd066e50c41f535"
+    },
+    "email": "maroonbleed007@gmail.com",
+    "root": "/media/lustbeast/6A38216B38213789/Intern Work/audio tagging",
+    "host": "lustbeast-ThinkStation-P330",
+    "username": "lustbeast",
+    "executable": "/home/lustbeast/.virtualenvs/baseline/bin/python3"
+}
