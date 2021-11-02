@@ -17,8 +17,9 @@ np.random.seed(2021)
 random.seed(2021)
 torch.backends.cudnn.benchmark = True
 torch.backends.cudnn.deterministic = True
+
+
 DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
-TOTAL_EPOCHS = 100
 scaler = GradScaler()
 early_stop = EarlyStopping(path='Models')
 
@@ -108,12 +109,6 @@ def val_loop(epoch,dataloader,model,loss_fn,device = DEVICE):
 
 
 
-
-
-        
-    
-
-
 if __name__ == "__main__":
 
     train_data = AudioDataset(0)
@@ -127,6 +122,8 @@ if __name__ == "__main__":
     for e in range(EPOCHS):
         train_el = train_loop(epoch=e,dataloader=trainloader,model=Model,loss_fn=train_loss,optim=optim)
         val_el = val_loop(epoch=e,dataloader=valloader,model=Model,loss_fn=val_loss)
-        early_stop(Model,val_el)
-
         print(f"{e}/{EPOCHS}, training_loss:{train_el}, val_loss:{val_el}")
+        early_stop(Model,val_el)
+        if early_stop.early_stop:
+            break
+        
