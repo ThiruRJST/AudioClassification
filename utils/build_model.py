@@ -129,10 +129,10 @@ def create_blocks(blocks):
     return module_list
 
 
-class CNN6(nn.Module):
+class CNN14_mod(nn.Module):
 
     def __init__(self):
-        super(CNN6, self).__init__()
+        super(CNN14_mod, self).__init__()
 
         self.model_list = parse_cfg("cfgs/cnn14.cfg")
         self.module_list = create_blocks(self.model_list)
@@ -156,7 +156,4 @@ class CNN6(nn.Module):
 
         return x
 
-model = CNN6()
-t = torch.Tensor(4,2,128,3446)
-tl = model(t)
 #print(tl.shape)

@@ -17,7 +17,7 @@ class EarlyStopping():
     def preserve_topk(self):
         model_paths = glob.glob(f"{self.path}/*.pth")
         loss = [float(x.split('/')[-1].split('_')) for x in model_paths]
-        model_name = "Model_"+str(min(loss))
+        model_name = self.name+'_'+str(min(loss))
         best_model = f"{os.path.join(self.path,model_name)}.pth"
 
         model_paths.remove(best_model)
@@ -32,6 +32,7 @@ class EarlyStopping():
 
         elif self.best_loss - val_loss > self.min_delta:
             self.best_loss = val_loss
+            self.counter = 0
             print("Saving the best Model State Dict")
             torch.save(Model.state_dict(),os.path.join(self.path,f"{self.name}_{self.best_loss}.pth"))
         elif self.best_loss - val_loss < self.min_delta:

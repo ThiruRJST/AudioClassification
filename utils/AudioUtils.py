@@ -12,7 +12,7 @@ class AudioUtils(object):
 
     @staticmethod
     def read_audio(filename,foldername, offset, duration):
-        path = os.path.join(foldername,filename)
+        path = os.path.join("Dataset",foldername,filename)
         audio, sr = torchaudio.load(
             path, frame_offset=offset*constants.SAMPLING_RATE, num_frames=duration*constants.SAMPLING_RATE)
         return (audio, sr)
@@ -46,13 +46,14 @@ class AudioUtils(object):
     def pad_audio(aud, max_len=constants.DURATION):
         sig, sr = aud
         rows, sig_len = sig.shape
+        #print(rows,sig_len)
         max_len = max_len * constants.SAMPLING_RATE
 
         if (sig_len == max_len):
             return aud
 
         elif (sig_len > max_len):
-            sig_len = sig_len[:, :max_len]
+            padded = sig[:, :max_len]
 
         elif (sig_len < max_len):
 
