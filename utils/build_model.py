@@ -39,48 +39,19 @@ def create_blocks(blocks):
                 bn = nn.BatchNorm2d(filters)
                 module.add_module("batch_norm_{}".format(i), bn)
 
-            if activation == "mish":
+            if activation == 'relu':
+                activ_fn = nn.ReLU()
+                module.add_module("ReLU{}".format(i),activ_fn)
+
+            elif activation == "mish":
                 activation_fn = nn.Mish()
                 module.add_module("Mish_{}".format(i), activation_fn)
+            
             elif activation == "leaky":
                 activation_fn = nn.LeakyReLU()
                 module.add_module("Leaky_ReLU{}".format(i),activation_fn)
 
-        elif(x['type'] == "deformable"):
-            # print("1")
-
-            activation = x['activation']
-            try:
-                batch_norm = int(x['batch_norm'])
-                bias = False
-            except:
-                batch_norm = 0
-                bias = True
-
-            filters = int(x["filters"])
-            padding = int(x['pad'])
-            kernel = int(x['size'])
-            stride = int(x['stride'])
-
-            dcn = DeformableConv2d(
-                in_channels=prev_filter,
-                out_channels=filters,
-                kernel=kernel,
-                stride=stride, padding=padding, bias=bias
-            )
-
-            module.add_module("dcn_{}".format(i), dcn)
-            if batch_norm:
-                bn = nn.BatchNorm2d(filters)
-                module.add_module("batch_norm_{}".format(i), bn)
-
-            if activation == "mish":
-                activation_fn = nn.Mish()
-                module.add_module("Mish_{}".format(i), activation_fn)
-            elif activation == "leaky":
-                activation_fn = nn.LeakyReLU()
-                module.add_module("Leaky_ReLU{}".format(i),activation_fn)
-
+        
         elif(x['type'] == 'shortcut'):
             shortcut = EmptyLayer()
             module.add_module("Shortcut_{}".format(i), shortcut)
@@ -92,9 +63,68 @@ def create_blocks(blocks):
         elif(x['type'] == 'avgpool'):
             pool = nn.AdaptiveAvgPool2d(output_size=(1,1))
             module.add_module("AvgPool{}".format(i),pool)
+        
+        elif(x['type'] == 'flatten'):
+            fltn = nn.Flatten()
+            module.add_module("Flatten{}".format(i),fltn)
+        
+        elif(x["type"] == "linear"):
+            # print("0")
+            #activation = x['activation']
+            try:
+                batch_norm = int(x['batch_normalize'])
+                bias = False
+            except:
+                batch_norm = 0
+                bias = True
 
+            filters = int(x["filters"])
+    
+            conv = nn.Linear(prev_filter, filters, bias=bias)
+            module.add_module("linear_{}".format(i), conv)
+
+            if batch_norm:
+                bn = nn.BatchNorm1d(filters)
+                module.add_module("batch_norm_{}".format(i), bn)
+
+            if activation == 'relu':
+                activ_fn = nn.ReLU()
+                module.add_module("ReLU{}".format(i),activ_fn)
+
+            elif activation == "mish":
+                activation_fn = nn.Mish()
+                module.add_module("Mish_{}".format(i), activation_fn)
+            
+            elif activation == "leaky":
+                activation_fn = nn.LeakyReLU()
+                module.add_module("Leaky_ReLU{}".format(i),activation_fn)
+
+        
+        
+        '''elif(x['type'] == 'linear'):
+            out_ftrs = x['filters']
+            activ = x['activation']
+            try:
+                batch_norm = int(x['batch_normalize'])
+                bias = False
+            except:
+                batch_norm = 0
+                bias = True
+            
+            lin = nn.Linear(512,out_ftrs)
+            module.add_module("Linear{}".format(i),lin)
+
+            if batch_norm:
+                bn = nn.BatchNorm2d(out_ftrs)
+                module.add_module("batch_norm_{}".format(i),bn)
+            if activ == 'relu':
+                activ_fn = nn.ReLU()
+                module.add_module("ReLU{}".format(i),activ_fn)'''
+
+        
         module_list.append(module)
         prev_filter = filters
+        #print(prev_filter)
         output_filter.append(filters)
     return module_list
 
@@ -108,21 +138,25 @@ class CNN6(nn.Module):
         self.module_list = create_blocks(self.model_list)
         #print(self.module_list)
 
+        #self.fc1 = nn.Linear(512,2048)
+
     def forward(self, x):
-        outputs = {}
+        
         for i, module in enumerate(self.model_list[1:]):
             module_type = module['type']
-            if module_type == "convolutional" or module_type == "deformable" or module_type == "avgpool":
+            if module_type == "convolutional" or module_type=='flatten' or module_type=='linear' or module_type=="pooling" or module_type == "deformable" or module_type == "avgpool":
                 x = self.module_list[i](x)
 
-            elif module_type == "shortcut":
-                from_ = int(module['from'])
-                x = outputs[i-1] + outputs[i+from_]
-
+           
             
 
-            outputs[i] = x
+            
+            #x = self.fc1(x)
+            #print(x.shape)
 
         return x
 
-
+model = CNN6()
+t = torch.Tensor(4,2,128,3446)
+tl = model(t)
+#print(tl.shape)

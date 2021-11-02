@@ -133,7 +133,22 @@ class FrequencyMasking(AudioAugmentations):
         freq_mask = T.FrequencyMasking(self.freq_mask_param)
         return freq_mask(mel)
 
+
+class MixUp(AudioAugmentations):
+
+    def __init__(self, always_apply=True, p=0.5):
+        super().__init__(always_apply=always_apply, p=p)
     
+    def apply(self,aud1:torch.Tensor,label1,aud2:torch.Tensor,label2):
+        alpha = np.random.uniform(0,1)
+        b_alpha = 1 - alpha
+        x = torch.add(torch.mul(aud1[0],alpha),torch.mul(aud2[0],b_alpha))
+        y = (alpha * label1) + (b_alpha * label2)
+
+        return x,y
+
+
+
     
 
     
