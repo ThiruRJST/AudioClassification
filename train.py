@@ -1,4 +1,6 @@
 from unicodedata import name
+
+
 from constants import EPOCHS
 import torch
 import torch.nn as nn
@@ -13,6 +15,10 @@ from tqdm import tqdm
 import os
 
 
+
+
+
+
 def seed_everything(seed=2021):
     torch.manual_seed(seed)
     np.random.seed(seed)
@@ -23,7 +29,7 @@ def seed_everything(seed=2021):
 
 
 
-def train_loop(fold,epoch,dataloader,model,loss_fn,optim,device='cuda:0'):
+def train_loop(fold,epoch,dataloader,scaler,model,loss_fn,optim,device='cuda:0'):
     model.train()
     epoch_loss = 0
     #epoch_acc = 0
@@ -128,8 +134,8 @@ if __name__ == "__main__":
         train_data = AudioDataset(f)
         val_data = AudioDataset(f,mode='validation')
 
-        trainloader = DataLoader(train_data,batch_size=16,shuffle=True)
-        valloader = DataLoader(val_data,batch_size=16,shuffle=True)
+        trainloader = DataLoader(train_data,batch_size=8,shuffle=True)
+        valloader = DataLoader(val_data,batch_size=8,shuffle=True)
 
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optim,'min',patience=5,verbose=True)
 
